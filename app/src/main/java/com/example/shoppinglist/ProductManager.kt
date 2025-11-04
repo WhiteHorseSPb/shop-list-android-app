@@ -71,11 +71,8 @@ class ProductManager {
      * Возвращает сгруппированный список для отображения
      */
     fun getGroupedList(): List<Any> {
-        // Создаем копию списка для сортировки, чтобы не изменять оригинальный порядок
-        val sortedProducts = _products.sortedBy { it.name }
-        
-        // Группируем по категориям
-        val groupedProducts = sortedProducts.groupBy { it.getGroup() }
+        // Группируем по категориям без изменения оригинального списка
+        val groupedProducts = _products.groupBy { it.getGroup() }
         val result = mutableListOf<Any>()
         
         // Добавляем заголовки и товары для каждой группы в правильном порядке

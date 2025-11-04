@@ -164,9 +164,10 @@ class ProductDiffCallback : DiffUtil.ItemCallback<Any>() {
         return when {
             oldItem is String && newItem is String -> oldItem == newItem
             oldItem is Product && newItem is Product -> {
-                // Всегда считаем содержимое разным для продуктов, чтобы гарантировать перерисовку
-                // Это решает проблему с визуальным обновлением при изменении состояния
-                false
+                // Точно сравниваем все поля продукта для правильного обновления
+                oldItem.name == newItem.name && 
+                oldItem.needsToBuy == newItem.needsToBuy && 
+                oldItem.isUrgent == newItem.isUrgent
             }
             else -> false
         }
