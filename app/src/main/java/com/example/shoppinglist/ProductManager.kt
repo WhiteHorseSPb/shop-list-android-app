@@ -29,17 +29,21 @@ class ProductManager {
     
     /**
      * Обновляет статус покупки продукта
-     * Если товар выключается из покупки и он был срочным, то он перестает быть срочным
+     * Звездочка снимается только если товар был в группе "Срочно" и его выключают из покупки
      */
     fun updateProductPurchaseStatus(name: String, needsToBuy: Boolean): Boolean {
         val index = _products.indexOfFirst { it.name.equals(name, ignoreCase = true) }
         if (index != -1) {
             val product = _products[index]
+            val currentGroup = product.getGroup()
+            
             product.needsToBuy = needsToBuy
-            // Если товар выключается из покупки и он был срочным, то он перестает быть срочным
-            if (!needsToBuy && product.isUrgent) {
+            
+            // Звездочку снимаем только если товар был в "Срочно" и его выключают из покупки
+            if (currentGroup == ProductGroup.URGENT_TO_BUY && !needsToBuy) {
                 product.isUrgent = false
             }
+            
             return true
         }
         return false
