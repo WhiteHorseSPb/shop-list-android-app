@@ -32,6 +32,9 @@ class ProductManager {
      * Звездочка снимается только если товар был в группе "Срочно" и его выключают из покупки
      */
     fun updateProductPurchaseStatus(name: String, needsToBuy: Boolean): Boolean {
+        android.util.Log.d("UPDATE_PRODUCT", "=== START UPDATE: $name to needsToBuy=$needsToBuy ===")
+        android.util.Log.d("UPDATE_PRODUCT", "BEFORE: ${_products.map { "${it.name}:buy=${it.needsToBuy},urgent=${it.isUrgent}" }}")
+        
         val index = _products.indexOfFirst { it.name.equals(name, ignoreCase = true) }
         if (index != -1) {
             val product = _products[index]
@@ -43,6 +46,9 @@ class ProductManager {
             if (currentGroup == ProductGroup.URGENT_TO_BUY && !needsToBuy) {
                 product.isUrgent = false
             }
+            
+            android.util.Log.d("UPDATE_PRODUCT", "AFTER: ${_products.map { "${it.name}:buy=${it.needsToBuy},urgent=${it.isUrgent}" }}")
+            android.util.Log.d("UPDATE_PRODUCT", "=== END UPDATE: $name ===")
             
             return true
         }

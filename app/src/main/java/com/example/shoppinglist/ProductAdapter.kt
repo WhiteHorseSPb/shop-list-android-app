@@ -180,21 +180,9 @@ class ProductAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ProductDiffCall
                 itemView.setBackgroundResource(R.drawable.product_item_background)
             }
             
-            // Многоуровневая инвалидация для гарантии обновления на всех устройствах
+            // Минимальная инвалидация для обновления
             itemView.invalidate()
             urgentStar.invalidate()
-            
-            // Дополнительное обновление через post для гарантии на MIUI
-            itemView.post {
-                itemView.invalidate()
-                urgentStar.invalidate()
-            }
-            
-            // Финальное обновление через postDelayed для абсолютной гарантии
-            itemView.postDelayed({
-                itemView.invalidate()
-                urgentStar.invalidate()
-            }, 25)
         }
         
     }

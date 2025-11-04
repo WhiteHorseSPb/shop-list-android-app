@@ -130,10 +130,8 @@ class MainActivity : AppCompatActivity() {
             adapter.submitList(groupedList)
             dataManager.saveProducts(productManager.products)
             
-            // Легкий fallback для гарантии визуального обновления при клике на звездочку
-            recyclerView.postDelayed({
-                adapter.notifyDataSetChanged()
-            }, 50) // Минимальная задержка чтобы не мешать анимациям
+            // Убираем fallback который вызывает массовое перемещение товаров
+            // Используем только submitList() для корректной работы DiffUtil
         }
     }
     
