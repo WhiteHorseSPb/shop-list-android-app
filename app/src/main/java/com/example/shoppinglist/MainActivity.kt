@@ -129,6 +129,11 @@ class MainActivity : AppCompatActivity() {
             val groupedList = productManager.getGroupedList()
             adapter.submitList(groupedList)
             dataManager.saveProducts(productManager.products)
+            
+            // Легкий fallback для гарантии визуального обновления при клике на звездочку
+            recyclerView.postDelayed({
+                adapter.notifyDataSetChanged()
+            }, 50) // Минимальная задержка чтобы не мешать анимациям
         }
     }
     
