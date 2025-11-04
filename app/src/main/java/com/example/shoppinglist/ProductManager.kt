@@ -29,11 +29,17 @@ class ProductManager {
     
     /**
      * Обновляет статус покупки продукта
+     * Если товар выключается из покупки и он был срочным, то он перестает быть срочным
      */
     fun updateProductPurchaseStatus(name: String, needsToBuy: Boolean): Boolean {
         val index = _products.indexOfFirst { it.name.equals(name, ignoreCase = true) }
         if (index != -1) {
-            _products[index].needsToBuy = needsToBuy
+            val product = _products[index]
+            product.needsToBuy = needsToBuy
+            // Если товар выключается из покупки и он был срочным, то он перестает быть срочным
+            if (!needsToBuy && product.isUrgent) {
+                product.isUrgent = false
+            }
             return true
         }
         return false
@@ -61,11 +67,11 @@ class ProductManager {
      * Возвращает сгруппированный список для отображения
      */
     fun getGroupedList(): List<Any> {
-        // Сортируем продукты по алфавиту
-        _products.sortBy { it.name }
+        // Создаем копию списка для сортировки, чтобы не изменять оригинальный порядок
+        val sortedProducts = _products.sortedBy { it.name }
         
         // Группируем по категориям
-        val groupedProducts = _products.groupBy { it.getGroup() }
+        val groupedProducts = sortedProducts.groupBy { it.getGroup() }
         val result = mutableListOf<Any>()
         
         // Добавляем заголовки и товары для каждой группы в правильном порядке
