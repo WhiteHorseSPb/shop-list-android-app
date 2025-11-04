@@ -76,43 +76,34 @@ class ProductAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ProductDiffCall
         fun bind(product: Product, onProductChanged: ((Product) -> Unit)?, onProductLongClick: ((Product) -> Unit)?) {
             productName.text = product.name
             
-            // Определяем группу товара
-            val group = product.getGroup()
+            // Принудительно обновляем все визуальные элементы на основе актуального состояния
+            val isUrgent = product.isUrgent
+            val needsToBuy = product.needsToBuy
             
             // Показываем переключатель для всех товаров
             switchBuy.visibility = View.VISIBLE
-            switchBuy.isChecked = product.needsToBuy
+            switchBuy.isChecked = needsToBuy
             
-            // Показываем звездочку для всех товаров (заполненная для срочных, пустая для остальных)
+            // Принудительно обновляем звездочку - всегда
             urgentStar.visibility = View.VISIBLE
-            urgentStar.alpha = if (product.isUrgent) 1.0f else 0.4f
-            
-            // Устанавливаем иконку звездочки в зависимости от статуса
-            urgentStar.setImageResource(
-                if (product.isUrgent) 
-                    android.R.drawable.btn_star_big_on 
-                else 
-                    android.R.drawable.btn_star_big_off
-            )
-            
+            urgentStar.alpha = if (isUrgent) 1.0f else 0.4f
+            urgentStar.setImageResource(if (isUrgent) android.R.drawable.btn_star_big_on else android.R.drawable.btn_star_big_off)
             urgentStar.setColorFilter(itemView.context.getColor(R.color.urgent_color))
             
-            // Устанавливаем фон для срочных товаров
-            itemView.setBackgroundResource(if (product.isUrgent) R.color.urgent_background else R.drawable.product_item_background)
+            // Принудительно обновляем фон - всегда
+            itemView.setBackgroundResource(if (isUrgent) R.color.urgent_background else R.drawable.product_item_background)
             
-            // Устанавливаем зеленый цвет для активного состояния (только если переключатель виден)
-            if (switchBuy.visibility == View.VISIBLE) {
-                switchBuy.thumbTintList = if (product.needsToBuy) {
-                    android.content.res.ColorStateList.valueOf(itemView.context.getColor(R.color.switch_active))
-                } else {
-                    android.content.res.ColorStateList.valueOf(itemView.context.getColor(R.color.switch_thumb))
-                }
-                
-                switchBuy.trackTintList = if (product.needsToBuy) {
-                    android.content.res.ColorStateList.valueOf(itemView.context.getColor(R.color.switch_active))
-                } else {
-                    android.content.res.ColorStateList.valueOf(itemView.context.getColor(R.color.switch_track))
-                }
+            // Принудительно обновляем цвета переключателя - всегда
+            switchBuy.thumbTintList = if (needsToBuy) {
+                android.content.res.ColorStateList.valueOf(itemView.context.getColor(R.color.switch_active))
+            } else {
+                android.content.res.ColorStateList.valueOf(itemView.context.getColor(R.color.switch_thumb))
+            }
+            
+            switchBuy.trackTintList = if (needsToBuy) {
+                android.content.res.ColorStateList.valueOf(itemView.context.getColor(R.color.switch_active))
+            } else {
+                android.content.res.ColorStateList.valueOf(itemView.context.getColor(R.color.switch_track))
             }
 
             switchBuy.setOnCheckedChangeListener { _, isChecked ->

@@ -188,6 +188,9 @@ class MainActivity : AppCompatActivity() {
             }
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
             
+            // Принудительно обновляем адаптер после изменения группы
+            adapter.notifyDataSetChanged()
+            
             // Обновляем список и сохраняем
             updateListAndSave()
         }
