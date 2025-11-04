@@ -196,6 +196,12 @@ class MainActivity : AppCompatActivity() {
             
             // Обновляем список и сохраняем
             updateListAndSave()
+            
+            // Дополнительное обновление для гарантии визуального изменения на MIUI
+            recyclerView.postDelayed({
+                // Принудительное обновление если визуальные элементы не изменились
+                adapter.notifyDataSetChanged()
+            }, 50) // Небольшая задержка для UI
         }
     }
     

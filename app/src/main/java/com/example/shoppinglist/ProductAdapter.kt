@@ -72,7 +72,13 @@ class ProductAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ProductDiffCall
                     (holder as ProductViewHolder).bind(item, onProductChanged, onProductLongClick)
                 } else {
                     // Точечное обновление для конкретных полей
-                    (holder as ProductViewHolder).updateUrgency(item)
+                    payloads.forEach { payload ->
+                        when (payload) {
+                            "urgency_changed" -> {
+                                (holder as ProductViewHolder).updateUrgency(item)
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -161,10 +167,18 @@ class ProductAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ProductDiffCall
         fun updateUrgency(product: Product) {
             val isUrgent = product.isUrgent
             
-            // Обновляем только звездочку и фон
+            // Принудительное обновление всех визуальных элементов
+            urgentStar.visibility = View.VISIBLE
             urgentStar.alpha = if (isUrgent) 1.0f else 0.4f
             urgentStar.setImageResource(if (isUrgent) android.R.drawable.btn_star_big_on else android.R.drawable.btn_star_big_off)
+            urgentStar.setColorFilter(itemView.context.getColor(R.color.urgent_color))
+            
+            // Принудительное обновление фона
             itemView.setBackgroundResource(if (isUrgent) R.color.urgent_background else R.drawable.product_item_background)
+            
+            // Принудительная инвалидация для обновления на MIUI
+            itemView.invalidate()
+            urgentStar.invalidate()
         }
         
     }
