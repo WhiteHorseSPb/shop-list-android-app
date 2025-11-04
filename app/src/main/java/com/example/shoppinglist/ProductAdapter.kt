@@ -59,6 +59,24 @@ class ProductAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ProductDiffCall
             }
         }
     }
+    
+    // Добавляем для точечных обновлений на MIUI
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int, payloads: MutableList<Any>) {
+        when (val item = getItem(position)) {
+            is String -> {
+                (holder as GroupHeaderViewHolder).bind(item)
+            }
+            is Product -> {
+                if (payloads.isEmpty()) {
+                    // Полная перерисовка только при необходимости
+                    (holder as ProductViewHolder).bind(item, onProductChanged, onProductLongClick)
+                } else {
+                    // Точечное обновление для конкретных полей
+                    (holder as ProductViewHolder).updateUrgency(item)
+                }
+            }
+        }
+    }
 
     inner class GroupHeaderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val groupTitle: TextView = itemView.findViewById(R.id.groupTitle)
@@ -139,6 +157,16 @@ class ProductAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ProductDiffCall
             }
         }
         
+        // Точечное обновление для MIUI совместимости
+        fun updateUrgency(product: Product) {
+            val isUrgent = product.isUrgent
+            
+            // Обновляем только звездочку и фон
+            urgentStar.alpha = if (isUrgent) 1.0f else 0.4f
+            urgentStar.setImageResource(if (isUrgent) android.R.drawable.btn_star_big_on else android.R.drawable.btn_star_big_off)
+            itemView.setBackgroundResource(if (isUrgent) R.color.urgent_background else R.drawable.product_item_background)
+        }
+        
     }
 }
 
@@ -155,12 +183,22 @@ class ProductDiffCallback : DiffUtil.ItemCallback<Any>() {
         return when {
             oldItem is String && newItem is String -> oldItem == newItem
             oldItem is Product && newItem is Product -> {
-                // Точно сравниваем все поля продукта для правильного обновления
+                // Более строгое сравнение для MIUI совместимости
                 oldItem.name == newItem.name && 
                 oldItem.needsToBuy == newItem.needsToBuy && 
                 oldItem.isUrgent == newItem.isUrgent
             }
             else -> false
+        }
+    }
+    
+    // Добавляем для точечных обновлений на MIUI
+    override fun getChangePayload(oldItem: Any, newItem: Any): Any? {
+        return when {
+            oldItem is Product && newItem is Product -> {
+                if (oldItem.isUrgent != newItem.isUrgent) "urgency_changed" else null
+            }
+            else -> null
         }
     }
 }

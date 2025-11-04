@@ -124,9 +124,12 @@ class MainActivity : AppCompatActivity() {
      * Обновляет список и сохраняет данные
      */
     private fun updateListAndSave() {
-        val groupedList = productManager.getGroupedList()
-        adapter.submitList(groupedList)
-        dataManager.saveProducts(productManager.products)
+        // Используем Handler для лучшей совместимости с MIUI
+        recyclerView.post {
+            val groupedList = productManager.getGroupedList()
+            adapter.submitList(groupedList)
+            dataManager.saveProducts(productManager.products)
+        }
     }
     
     private fun setupAddProduct() {
@@ -188,8 +191,8 @@ class MainActivity : AppCompatActivity() {
             }
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
             
-            // Принудительно обновляем адаптер после изменения группы
-            adapter.notifyDataSetChanged()
+            // Убираем notifyDataSetChanged() который вызывает проблему на MIUI
+            // Используем только updateListAndSave() для корректной работы на Xiaomi
             
             // Обновляем список и сохраняем
             updateListAndSave()
