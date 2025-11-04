@@ -197,10 +197,7 @@ class MainActivity : AppCompatActivity() {
             // Обновляем список и сохраняем
             updateListAndSave()
             
-            // Дополнительное обновление для гарантии визуального изменения
-            recyclerView.postDelayed({
-                adapter.notifyDataSetChanged()
-            }, 100) // Задержка для UI обновления
+            // Убираем fallback с notifyDataSetChanged() который вызывает случайное перемещение товаров
         }
     }
     

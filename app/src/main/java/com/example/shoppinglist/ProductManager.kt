@@ -54,9 +54,6 @@ class ProductManager {
      * Если товар становится срочным, он автоматически становится нужным для покупки
      */
     fun toggleProductUrgency(name: String): Boolean {
-        // Логируем состояние ДО изменения
-        android.util.Log.d("TOGGLE_URGENCY", "BEFORE: ${_products.map { "${it.name}:urgent=${it.isUrgent},buy=${it.needsToBuy}" }}")
-        
         val index = _products.indexOfFirst { it.name.equals(name, ignoreCase = true) }
         if (index != -1) {
             val product = _products[index]
@@ -65,10 +62,6 @@ class ProductManager {
             if (product.isUrgent) {
                 product.needsToBuy = true
             }
-            
-            // Логируем состояние ПОСЛЕ изменения
-            android.util.Log.d("TOGGLE_URGENCY", "AFTER: ${_products.map { "${it.name}:urgent=${it.isUrgent},buy=${it.needsToBuy}" }}")
-            android.util.Log.d("TOGGLE_URGENCY", "Changed: ${product.name} to urgent=${product.isUrgent}")
             
             return true
         }
@@ -79,9 +72,6 @@ class ProductManager {
      * Возвращает сгруппированный список для отображения
      */
     fun getGroupedList(): List<Any> {
-        // Логируем все продукты перед группировкой
-        android.util.Log.d("GET_GROUPED_LIST", "All products: ${_products.map { "${it.name}:urgent=${it.isUrgent},buy=${it.needsToBuy}" }}")
-        
         // Группируем по категориям без изменения оригинального списка
         val groupedProducts = _products.groupBy { it.getGroup() }
         val result = mutableListOf<Any>()
@@ -99,13 +89,9 @@ class ProductManager {
                 result.add(groupTitle)
                 // Добавляем товары группы
                 result.addAll(productsInGroup)
-                
-                // Логируем каждую группу
-                android.util.Log.d("GET_GROUPED_LIST", "Group $groupTitle: ${productsInGroup.map { "${it.name}:urgent=${it.isUrgent},buy=${it.needsToBuy}" }}")
             }
         }
         
-        android.util.Log.d("GET_GROUPED_LIST", "Final result size: ${result.size}")
         return result
     }
     
