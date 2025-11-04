@@ -167,6 +167,8 @@ class ProductAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ProductDiffCall
         fun updateUrgency(product: Product) {
             val isUrgent = product.isUrgent
             
+            android.util.Log.d("UPDATE_URGENCY", "Updating ${product.name}: urgent=$isUrgent")
+            
             // Принудительное обновление всех визуальных элементов
             urgentStar.visibility = View.VISIBLE
             urgentStar.alpha = if (isUrgent) 1.0f else 0.4f
@@ -174,11 +176,24 @@ class ProductAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ProductDiffCall
             urgentStar.setColorFilter(itemView.context.getColor(R.color.urgent_color))
             
             // Принудительное обновление фона
-            itemView.setBackgroundResource(if (isUrgent) R.color.urgent_background else R.drawable.product_item_background)
+            if (isUrgent) {
+                itemView.setBackgroundResource(R.color.urgent_background)
+                android.util.Log.d("UPDATE_URGENCY", "Set urgent background for ${product.name}")
+            } else {
+                itemView.setBackgroundResource(R.drawable.product_item_background)
+                android.util.Log.d("UPDATE_URGENCY", "Set normal background for ${product.name}")
+            }
             
             // Принудительная инвалидация для обновления на MIUI
             itemView.invalidate()
             urgentStar.invalidate()
+            
+            // Дополнительное обновление через post для гарантии
+            itemView.post {
+                itemView.invalidate()
+                urgentStar.invalidate()
+                android.util.Log.d("UPDATE_URGENCY", "Post invalidate for ${product.name}")
+            }
         }
         
     }
