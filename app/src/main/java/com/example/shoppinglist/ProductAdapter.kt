@@ -77,6 +77,9 @@ class ProductAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ProductDiffCall
                             "urgency_changed" -> {
                                 (holder as ProductViewHolder).updateUrgency(item)
                             }
+                            "visual_changed" -> {
+                                (holder as ProductViewHolder).updateUrgency(item)
+                            }
                         }
                     }
                 }
@@ -118,20 +121,33 @@ class ProductAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ProductDiffCall
         private fun updateVisualElements(product: Product) {
             val isUrgent = product.isUrgent
             val needsToBuy = product.needsToBuy
+            val productGroup = product.getGroup()
             
             // Показываем переключатель для всех товаров
             switchBuy.visibility = View.VISIBLE
             switchBuy.isChecked = needsToBuy
             
-            // Принудительно обновляем звездочку
-            urgentStar.visibility = View.VISIBLE
-            urgentStar.alpha = if (isUrgent) 1.0f else 0.4f
-            urgentStar.setImageResource(if (isUrgent) android.R.drawable.btn_star_big_on else android.R.drawable.btn_star_big_off)
-            urgentStar.setColorFilter(itemView.context.getColor(R.color.urgent_color))
-            
-            // Принудительно обновляем фон
-            val backgroundRes = if (isUrgent) R.color.urgent_background else R.drawable.product_item_background
-            itemView.setBackgroundResource(backgroundRes)
+            // Особое отображение для группы "Остальное"
+            if (productGroup == ProductGroup.OTHER) {
+                // Для группы "Остальное": бледная звездочка + белый фон
+                urgentStar.visibility = View.VISIBLE
+                urgentStar.alpha = 0.3f  // Очень бледная звездочка
+                urgentStar.setImageResource(android.R.drawable.btn_star_big_off)
+                urgentStar.setColorFilter(itemView.context.getColor(R.color.text_secondary))
+                
+                // Белый фон для группы "Остальное"
+                itemView.setBackgroundColor(itemView.context.getColor(R.color.white))
+            } else {
+                // Стандартное отображение для других групп
+                urgentStar.visibility = View.VISIBLE
+                urgentStar.alpha = if (isUrgent) 1.0f else 0.4f
+                urgentStar.setImageResource(if (isUrgent) android.R.drawable.btn_star_big_on else android.R.drawable.btn_star_big_off)
+                urgentStar.setColorFilter(itemView.context.getColor(R.color.urgent_color))
+                
+                // Стандартный фон для других групп
+                val backgroundRes = if (isUrgent) R.color.urgent_background else R.drawable.product_item_background
+                itemView.setBackgroundResource(backgroundRes)
+            }
             
             // Принудительно обновляем цвета переключателя
             val thumbColor = if (needsToBuy) {
@@ -191,6 +207,10 @@ class ProductAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ProductDiffCall
                     } else {
                         android.content.res.ColorStateList.valueOf(itemView.context.getColor(R.color.switch_track))
                     }
+                    
+                    // ПРИНУДИТЕЛЬНОЕ ОБНОВЛЕНИЕ ВИЗУАЛЬНЫХ ЭЛЕМЕНТОВ
+                    // Обновляем визуальные элементы после изменения состояния переключателя
+                    updateVisualElements(product)
                     
                     // Уведомляем об изменении для сохранения и пересортировки
                     onProductChanged.invoke(product)
@@ -253,8 +273,9 @@ class ProductDiffCallback : DiffUtil.ItemCallback<Any>() {
                 val nameSame = oldItem.name == newItem.name
                 val needsToBuySame = oldItem.needsToBuy == newItem.needsToBuy
                 val isUrgentSame = oldItem.isUrgent == newItem.isUrgent
+                val groupSame = oldItem.getGroup() == newItem.getGroup()
                 
-                nameSame && needsToBuySame && isUrgentSame
+                nameSame && needsToBuySame && isUrgentSame && groupSame
             }
             else -> false
         }
@@ -265,8 +286,14 @@ class ProductDiffCallback : DiffUtil.ItemCallback<Any>() {
         return when {
             oldItem is Product && newItem is Product -> {
                 val urgencyChanged = oldItem.isUrgent != newItem.isUrgent
+                val needsToBuyChanged = oldItem.needsToBuy != newItem.needsToBuy
+                val groupChanged = oldItem.getGroup() != newItem.getGroup()
                 
-                if (urgencyChanged) "urgency_changed" else null
+                when {
+                    urgencyChanged -> "urgency_changed"
+                    needsToBuyChanged || groupChanged -> "visual_changed"
+                    else -> null
+                }
             }
             else -> null
         }
