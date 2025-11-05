@@ -24,9 +24,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
-        // Инициализируем файловое логирование
-        FileLogger.initialize(this)
-        
         setContentView(R.layout.activity_main)
         
         // Инициализация менеджеров
@@ -78,26 +75,15 @@ class MainActivity : AppCompatActivity() {
     }
     
     private fun loadProducts() {
-        FileLogger.d("LOAD_PRODUCTS", "=== ЗАГРУЗКА ПРОДУКТОВ ===")
-        
-        // ВРЕМЕННО: Очищаем сохраненные данные для тестирования правильной логики
-        dataManager.clearProducts()
-        FileLogger.d("LOAD_PRODUCTS", "СОХРАНЕННЫЕ ДАННЫЕ ОЧИЩЕНЫ ДЛЯ ТЕСТИРОВАНИЯ")
-        
         // Загружаем продукты из DataManager
         val savedProducts = dataManager.loadProducts()
         if (savedProducts.isNotEmpty()) {
-            FileLogger.d("LOAD_PRODUCTS", "ЗАГРУЖЕНЫ СОХРАНЕННЫЕ ПРОДУКТЫ: ${savedProducts.size}")
-            FileLogger.d("LOAD_PRODUCTS", "СОХРАНЕННЫЕ: ${savedProducts.map { "${it.name}:urgent=${it.isUrgent},buy=${it.needsToBuy}" }}")
             productManager.loadProducts(savedProducts)
         } else {
-            FileLogger.d("LOAD_PRODUCTS", "СОХРАНЕННЫХ ПРОДУКТОВ НЕТ, ЗАГРУЖАЕМ НАЧАЛЬНЫЕ")
             val initialProducts = getInitialProducts()
-            FileLogger.d("LOAD_PRODUCTS", "НАЧАЛЬНЫЕ ПРОДУКТЫ: ${initialProducts.map { "${it.name}:urgent=${it.isUrgent},buy=${it.needsToBuy}" }}")
             initialProducts.forEach { productManager.addProduct(it) }
         }
         updateListAndSave()
-        FileLogger.d("LOAD_PRODUCTS", "=== КОНЕЦ ЗАГРУЗКИ ПРОДУКТОВ ===")
     }
     
     private fun getInitialProducts(): List<Product> {
@@ -194,24 +180,12 @@ class MainActivity : AppCompatActivity() {
     }
     
     private fun toggleProductUrgency(product: Product) {
-        FileLogger.d("MAIN_ACTIVITY", "=== TOGGLE URGENCY: ${product.name} ===")
-        FileLogger.d("MAIN_ACTIVITY", "BEFORE: urgent=${product.isUrgent}, buy=${product.needsToBuy}")
-        
-        // Сохраняем состояние всех товаров ДО изменения для отладки
-        val beforeState = productManager.products.map { "${it.name}:urgent=${it.isUrgent},buy=${it.needsToBuy}" }
-        FileLogger.d("MAIN_ACTIVITY", "BEFORE STATE ALL: $beforeState")
-        
-        // Сначала изменяем состояние в менеджере
+        // Изменяем состояние в менеджере
         val success = productManager.toggleProductUrgency(product.name)
         
         if (success) {
             // Получаем обновленный продукт
             val updatedProduct = productManager.products.find { it.name == product.name }
-            
-            // Сохраняем состояние всех товаров ПОСЛЕ изменения для отладки
-            val afterState = productManager.products.map { "${it.name}:urgent=${it.isUrgent},buy=${it.needsToBuy}" }
-            FileLogger.d("MAIN_ACTIVITY", "AFTER STATE ALL: $afterState")
-            FileLogger.d("MAIN_ACTIVITY", "AFTER: urgent=${updatedProduct?.isUrgent}, buy=${updatedProduct?.needsToBuy}")
             
             // Показываем сообщение
             val message = if (updatedProduct?.isUrgent == true) {
@@ -221,13 +195,8 @@ class MainActivity : AppCompatActivity() {
             }
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
             
-            // ИСПРАВЛЕНИЕ: Используем только updateListAndSave() без notifyDataSetChanged()
-            // notifyDataSetChanged() вызывает двойное обновление и случайное перемещение товаров
-            runOnUiThread {
-                updateListAndSave()
-            }
-            
-            FileLogger.d("MAIN_ACTIVITY", "=== END TOGGLE URGENCY: ${product.name} ===")
+            // Обновляем список
+            updateListAndSave()
         }
     }
     

@@ -103,9 +103,6 @@ class ProductAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ProductDiffCall
         private var currentOnProductLongClick: ((Product) -> Unit)? = null
 
         fun bind(product: Product, onProductChanged: ((Product) -> Unit)?, onProductLongClick: ((Product) -> Unit)?) {
-            FileLogger.d("PRODUCT_ADAPTER", "=== BIND: ${product.name} ===")
-            FileLogger.d("PRODUCT_ADAPTER", "INPUT DATA: urgent=${product.isUrgent}, buy=${product.needsToBuy}")
-            
             // Сохраняем текущий продукт и callbacks
             currentProduct = product
             currentOnProductChanged = onProductChanged
@@ -115,16 +112,12 @@ class ProductAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ProductDiffCall
             
             // Вызываем принудительное обновление визуальных элементов
             updateVisualElements(product)
-            
-            FileLogger.d("PRODUCT_ADAPTER", "=== END BIND: ${product.name} ===")
         }
         
         // Вынесен отдельный метод для обновления визуальных элементов
         private fun updateVisualElements(product: Product) {
             val isUrgent = product.isUrgent
             val needsToBuy = product.needsToBuy
-            
-            FileLogger.d("PRODUCT_ADAPTER", "UPDATE VISUAL: urgent=$isUrgent, buy=$needsToBuy")
             
             // Показываем переключатель для всех товаров
             switchBuy.visibility = View.VISIBLE
@@ -155,9 +148,6 @@ class ProductAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ProductDiffCall
             
             switchBuy.thumbTintList = thumbColor
             switchBuy.trackTintList = trackColor
-            
-            // Логируем финальное состояние визуальных элементов
-            FileLogger.d("PRODUCT_ADAPTER", "VISUAL STATE: star_alpha=${urgentStar.alpha}, star_src=${if (isUrgent) "btn_star_big_on" else "btn_star_big_off"}, bg=$backgroundRes")
             
             // Принудительная инвалидация для MIUI - усиленная версия
             itemView.post {
@@ -236,16 +226,11 @@ class ProductAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ProductDiffCall
         
         // Точечное обновление для MIUI совместимости
         fun updateUrgency(product: Product) {
-            FileLogger.d("PRODUCT_ADAPTER", "=== UPDATE URGENCY: ${product.name} ===")
-            FileLogger.d("PRODUCT_ADAPTER", "INPUT: urgent=${product.isUrgent}, buy=${product.needsToBuy}")
-            
             // Обновляем сохраненный продукт
             currentProduct = product
             
             // Вызываем полное обновление визуальных элементов
             updateVisualElements(product)
-            
-            FileLogger.d("PRODUCT_ADAPTER", "=== END UPDATE URGENCY: ${product.name} ===")
         }
         
     }
@@ -253,18 +238,15 @@ class ProductAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ProductDiffCall
 
 class ProductDiffCallback : DiffUtil.ItemCallback<Any>() {
     override fun areItemsTheSame(oldItem: Any, newItem: Any): Boolean {
-        val result = when {
+        return when {
             oldItem is String && newItem is String -> oldItem == newItem
             oldItem is Product && newItem is Product -> oldItem.name == newItem.name
             else -> false
         }
-        
-        FileLogger.d("DIFF_UTIL", "areItemsTheSame: ${getItemInfo(oldItem)} == ${getItemInfo(newItem)} -> $result")
-        return result
     }
 
     override fun areContentsTheSame(oldItem: Any, newItem: Any): Boolean {
-        val result = when {
+        return when {
             oldItem is String && newItem is String -> oldItem == newItem
             oldItem is Product && newItem is Product -> {
                 // Более строгое сравнение для MIUI совместимости
@@ -272,44 +254,21 @@ class ProductDiffCallback : DiffUtil.ItemCallback<Any>() {
                 val needsToBuySame = oldItem.needsToBuy == newItem.needsToBuy
                 val isUrgentSame = oldItem.isUrgent == newItem.isUrgent
                 
-                FileLogger.d("DIFF_UTIL", "areContentsTheSame: ${getProductInfo(oldItem)} == ${getProductInfo(newItem)}")
-                FileLogger.d("DIFF_UTIL", "  nameSame: $nameSame, needsToBuySame: $needsToBuySame, isUrgentSame: $isUrgentSame")
-                
                 nameSame && needsToBuySame && isUrgentSame
             }
             else -> false
         }
-        
-        FileLogger.d("DIFF_UTIL", "areContentsTheSame RESULT: $result")
-        return result
     }
     
     // Добавляем для точечных обновлений на MIUI
     override fun getChangePayload(oldItem: Any, newItem: Any): Any? {
-        val payload = when {
+        return when {
             oldItem is Product && newItem is Product -> {
                 val urgencyChanged = oldItem.isUrgent != newItem.isUrgent
-                FileLogger.d("DIFF_UTIL", "getChangePayload: ${getProductInfo(oldItem)} -> ${getProductInfo(newItem)}")
-                FileLogger.d("DIFF_UTIL", "  urgencyChanged: $urgencyChanged")
                 
                 if (urgencyChanged) "urgency_changed" else null
             }
             else -> null
         }
-        
-        FileLogger.d("DIFF_UTIL", "getChangePayload RESULT: $payload")
-        return payload
-    }
-    
-    private fun getItemInfo(item: Any): String {
-        return when (item) {
-            is String -> "\"$item\""
-            is Product -> getProductInfo(item)
-            else -> "Unknown"
-        }
-    }
-    
-    private fun getProductInfo(product: Product): String {
-        return "\"${product.name}(urgent=${product.isUrgent},buy=${product.needsToBuy})\""
     }
 }
