@@ -77,6 +77,9 @@ class ProductAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ProductDiffCall
                             "urgency_changed" -> {
                                 (holder as ProductViewHolder).updateUrgency(item)
                             }
+                            "visual_changed" -> {
+                                (holder as ProductViewHolder).updateUrgency(item)
+                            }
                         }
                     }
                 }
@@ -205,6 +208,10 @@ class ProductAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ProductDiffCall
                         android.content.res.ColorStateList.valueOf(itemView.context.getColor(R.color.switch_track))
                     }
                     
+                    // ПРИНУДИТЕЛЬНОЕ ОБНОВЛЕНИЕ ВИЗУАЛЬНЫХ ЭЛЕМЕНТОВ
+                    // Обновляем визуальные элементы после изменения состояния переключателя
+                    updateVisualElements(product)
+                    
                     // Уведомляем об изменении для сохранения и пересортировки
                     onProductChanged.invoke(product)
                 }
@@ -279,8 +286,14 @@ class ProductDiffCallback : DiffUtil.ItemCallback<Any>() {
         return when {
             oldItem is Product && newItem is Product -> {
                 val urgencyChanged = oldItem.isUrgent != newItem.isUrgent
+                val needsToBuyChanged = oldItem.needsToBuy != newItem.needsToBuy
+                val groupChanged = oldItem.getGroup() != newItem.getGroup()
                 
-                if (urgencyChanged) "urgency_changed" else null
+                when {
+                    urgencyChanged -> "urgency_changed"
+                    needsToBuyChanged || groupChanged -> "visual_changed"
+                    else -> null
+                }
             }
             else -> null
         }
