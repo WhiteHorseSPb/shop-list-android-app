@@ -32,8 +32,8 @@ class ProductManager {
      * Звездочка снимается только если товар был в группе "Срочно" и его выключают из покупки
      */
     fun updateProductPurchaseStatus(name: String, needsToBuy: Boolean): Boolean {
-        android.util.Log.d("UPDATE_PRODUCT", "=== START UPDATE: $name to needsToBuy=$needsToBuy ===")
-        android.util.Log.d("UPDATE_PRODUCT", "BEFORE: ${_products.map { "${it.name}:buy=${it.needsToBuy},urgent=${it.isUrgent}" }}")
+        FileLogger.d("UPDATE_PRODUCT", "=== START UPDATE: $name to needsToBuy=$needsToBuy ===")
+        FileLogger.d("UPDATE_PRODUCT", "BEFORE: ${_products.map { "${it.name}:buy=${it.needsToBuy},urgent=${it.isUrgent}" }}")
         
         val index = _products.indexOfFirst { it.name.equals(name, ignoreCase = true) }
         if (index != -1) {
@@ -47,8 +47,8 @@ class ProductManager {
                 product.isUrgent = false
             }
             
-            android.util.Log.d("UPDATE_PRODUCT", "AFTER: ${_products.map { "${it.name}:buy=${it.needsToBuy},urgent=${it.isUrgent}" }}")
-            android.util.Log.d("UPDATE_PRODUCT", "=== END UPDATE: $name ===")
+            FileLogger.d("UPDATE_PRODUCT", "AFTER: ${_products.map { "${it.name}:buy=${it.needsToBuy},urgent=${it.isUrgent}" }}")
+            FileLogger.d("UPDATE_PRODUCT", "=== END UPDATE: $name ===")
             
             return true
         }
@@ -60,17 +60,28 @@ class ProductManager {
      * Если товар становится срочным, он автоматически становится нужным для покупки
      */
     fun toggleProductUrgency(name: String): Boolean {
+        FileLogger.d("PRODUCT_MANAGER", "=== TOGGLE URGENCY: $name ===")
+        
         val index = _products.indexOfFirst { it.name.equals(name, ignoreCase = true) }
         if (index != -1) {
             val product = _products[index]
+            val oldUrgent = product.isUrgent
+            val oldNeedsToBuy = product.needsToBuy
+            
             product.isUrgent = !product.isUrgent
             // Если товар становится срочным, он автоматически становится нужным для покупки
             if (product.isUrgent) {
                 product.needsToBuy = true
             }
             
+            FileLogger.d("PRODUCT_MANAGER", "BEFORE: urgent=$oldUrgent, buy=$oldNeedsToBuy")
+            FileLogger.d("PRODUCT_MANAGER", "AFTER: urgent=${product.isUrgent}, buy=${product.needsToBuy}")
+            FileLogger.d("PRODUCT_MANAGER", "=== END TOGGLE URGENCY: $name ===")
+            
             return true
         }
+        
+        FileLogger.d("PRODUCT_MANAGER", "PRODUCT NOT FOUND: $name")
         return false
     }
     
@@ -78,9 +89,22 @@ class ProductManager {
      * Возвращает сгруппированный список для отображения
      */
     fun getGroupedList(): List<Any> {
+        FileLogger.d("GROUPED_LIST", "=== НАЧАЛО ГРУППИРОВКИ ===")
+        FileLogger.d("GROUPED_LIST", "ВСЕ ТОВАРЫ: ${_products.map { "${it.name}:urgent=${it.isUrgent},buy=${it.needsToBuy}" }}")
+        
         // Группируем по категориям без изменения оригинального списка
         val groupedProducts = _products.groupBy { it.getGroup() }
         val result = mutableListOf<Any>()
+        
+        FileLogger.d("GROUPED_LIST", "ГРУППЫ ПОСЛЕ ГРУППИРОВКИ:")
+        groupedProducts.forEach { (group, products) ->
+            val groupName = when (group) {
+                ProductGroup.URGENT_TO_BUY -> "СРОЧНО"
+                ProductGroup.TO_BUY -> "ВАЖНО"
+                ProductGroup.OTHER -> "ОСТАЛЬНОЕ"
+            }
+            FileLogger.d("GROUPED_LIST", "  $groupName: ${products.map { "${it.name}:urgent=${it.isUrgent},buy=${it.needsToBuy}" }}")
+        }
         
         // Добавляем заголовки и товары для каждой группы в правильном порядке
         ProductGroup.values().forEach { group ->
@@ -93,11 +117,14 @@ class ProductManager {
                     ProductGroup.OTHER -> "📋 ОСТАЛЬНОЕ"
                 }
                 result.add(groupTitle)
+                FileLogger.d("GROUPED_LIST", "Добавлена группа: $groupTitle с ${productsInGroup.size} товарами")
                 // Добавляем товары группы
                 result.addAll(productsInGroup)
             }
         }
         
+        FileLogger.d("GROUPED_LIST", "ФИНАЛЬНЫЙ СПИСОК: $result")
+        FileLogger.d("GROUPED_LIST", "=== КОНЕЦ ГРУППИРОВКИ ===")
         return result
     }
     

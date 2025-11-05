@@ -1,6 +1,10 @@
 *.iml
 .gradle
 /local.properties
+
+# Файловые логи отладки
+logs/
+*.log
 /.idea/caches
 /.idea/libraries
 /.idea/modules.xml

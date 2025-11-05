@@ -88,6 +88,15 @@ class DataManager(context: Context) {
     }
     
     /**
+     * Очищает только список продуктов (для тестирования)
+     */
+    fun clearProducts() {
+        sharedPreferences.edit()
+            .remove(PRODUCTS_KEY)
+            .apply()
+    }
+    
+    /**
      * Временный класс для обратной совместимости со старыми данными
      */
     private data class OldProduct(
