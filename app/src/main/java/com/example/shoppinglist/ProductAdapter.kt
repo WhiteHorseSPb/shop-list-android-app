@@ -147,25 +147,19 @@ class ProductAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ProductDiffCall
                 }
             }
             
-            // Разный фон для разных групп
-            if (isUrgent) {
-                // Розовый фон для срочных товаров со скругленными углами
-                itemView.setBackgroundResource(R.drawable.urgent_background_rounded)
-            } else {
-                val productGroup = product.getGroup()
-                when (productGroup) {
-                    ProductGroup.TO_BUY -> {
-                        // Градиентный фон для "Важно"
-                        itemView.setBackgroundResource(R.drawable.product_item_background_unified)
-                    }
-                    ProductGroup.OTHER -> {
-                        // Белый фон для "Остальное"
-                        itemView.setBackgroundResource(R.drawable.product_item_background_white)
-                    }
-                    else -> {
-                        // По умолчанию unified фон
-                        itemView.setBackgroundResource(R.drawable.product_item_background_unified)
-                    }
+            // Разный фон для разных групп - используем группировку, а не только флаг isUrgent
+            when (productGroup) {
+                ProductGroup.URGENT_TO_BUY -> {
+                    // Розовый фон для срочных товаров со скругленными углами
+                    itemView.setBackgroundResource(R.drawable.urgent_background_rounded)
+                }
+                ProductGroup.TO_BUY -> {
+                    // Градиентный фон для "Важно"
+                    itemView.setBackgroundResource(R.drawable.product_item_background_unified)
+                }
+                ProductGroup.OTHER -> {
+                    // Белый фон для "Остальное"
+                    itemView.setBackgroundResource(R.drawable.product_item_background_white)
                 }
             }
             
@@ -190,17 +184,25 @@ class ProductAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ProductDiffCall
             android.util.Log.d("VISUAL_DEBUG", "Product: ${product.name}")
             android.util.Log.d("VISUAL_DEBUG", "isUrgent: $isUrgent, needsToBuy: $needsToBuy")
             android.util.Log.d("VISUAL_DEBUG", "Group: $productGroup")
-            android.util.Log.d("VISUAL_DEBUG", "Background: ${if (isUrgent) "pink" else if (productGroup == ProductGroup.OTHER) "white" else "gradient"}")
+            android.util.Log.d("VISUAL_DEBUG", "Background: ${when (productGroup) {
+                ProductGroup.URGENT_TO_BUY -> "pink"
+                ProductGroup.TO_BUY -> "gradient"
+                ProductGroup.OTHER -> "white"
+            }}")
             
             // Дополнительная проверка применения фона
             itemView.post {
-                val currentBackground = when {
-                    isUrgent -> "pink"
-                    productGroup == ProductGroup.OTHER -> "white"
-                    else -> "gradient"
+                val currentBackground = when (productGroup) {
+                    ProductGroup.URGENT_TO_BUY -> "pink"
+                    ProductGroup.TO_BUY -> "gradient"
+                    ProductGroup.OTHER -> "white"
                 }
                 android.util.Log.d("VISUAL_DEBUG", "Expected background: $currentBackground")
-                android.util.Log.d("VISUAL_DEBUG", "Actual background resource: ${if (isUrgent) R.drawable.urgent_background_rounded else if (productGroup == ProductGroup.OTHER) R.drawable.product_item_background_white else R.drawable.product_item_background_unified}")
+                android.util.Log.d("VISUAL_DEBUG", "Actual background resource: ${when (productGroup) {
+                    ProductGroup.URGENT_TO_BUY -> R.drawable.urgent_background_rounded
+                    ProductGroup.TO_BUY -> R.drawable.product_item_background_unified
+                    ProductGroup.OTHER -> R.drawable.product_item_background_white
+                }}")
             }
             
             // Принудительная инвалидация для MIUI - усиленная версия
