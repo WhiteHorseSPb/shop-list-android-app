@@ -192,6 +192,17 @@ class ProductAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ProductDiffCall
             android.util.Log.d("VISUAL_DEBUG", "Group: $productGroup")
             android.util.Log.d("VISUAL_DEBUG", "Background: ${if (isUrgent) "pink" else if (productGroup == ProductGroup.OTHER) "white" else "gradient"}")
             
+            // Дополнительная проверка применения фона
+            itemView.post {
+                val currentBackground = when {
+                    isUrgent -> "pink"
+                    productGroup == ProductGroup.OTHER -> "white"
+                    else -> "gradient"
+                }
+                android.util.Log.d("VISUAL_DEBUG", "Expected background: $currentBackground")
+                android.util.Log.d("VISUAL_DEBUG", "Actual background resource: ${if (isUrgent) R.drawable.urgent_background_rounded else if (productGroup == ProductGroup.OTHER) R.drawable.product_item_background_white else R.drawable.product_item_background_unified}")
+            }
+            
             // Принудительная инвалидация для MIUI - усиленная версия
             itemView.post {
                 // Полная перерисовка для MIUI
