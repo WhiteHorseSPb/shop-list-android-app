@@ -133,13 +133,26 @@ class ProductAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ProductDiffCall
             urgentStar.setImageResource(if (isUrgent) android.R.drawable.btn_star_big_on else android.R.drawable.btn_star_big_off)
             urgentStar.setColorFilter(itemView.context.getColor(R.color.urgent_color))
             
-            // Единый фон для всех групп, кроме "Срочно"
+            // Разный фон для разных групп
             if (isUrgent) {
                 // Розовый фон для срочных товаров со скругленными углами
                 itemView.setBackgroundResource(R.drawable.urgent_background_rounded)
             } else {
-                // Единый стиль для "Важно" и "Остальное" (без тени)
-                itemView.setBackgroundResource(R.drawable.product_item_background_unified)
+                val productGroup = product.getGroup()
+                when (productGroup) {
+                    ProductGroup.TO_BUY -> {
+                        // Градиентный фон для "Важно"
+                        itemView.setBackgroundResource(R.drawable.product_item_background_unified)
+                    }
+                    ProductGroup.OTHER -> {
+                        // Белый фон для "Остальное"
+                        itemView.setBackgroundResource(R.drawable.product_item_background_white)
+                    }
+                    else -> {
+                        // По умолчанию unified фон
+                        itemView.setBackgroundResource(R.drawable.product_item_background_unified)
+                    }
+                }
             }
             
             // Принудительно обновляем цвета переключателя
