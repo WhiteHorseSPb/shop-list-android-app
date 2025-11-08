@@ -135,8 +135,8 @@ class ProductAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ProductDiffCall
             
             // Единый фон для всех групп, кроме "Срочно"
             if (isUrgent) {
-                // Розовый фон для срочных товаров
-                itemView.setBackgroundResource(R.color.urgent_background)
+                // Розовый фон для срочных товаров со скругленными углами
+                itemView.setBackgroundResource(R.drawable.urgent_background_rounded)
             } else {
                 // Единый стиль для "Важно" и "Остальное" (без тени)
                 itemView.setBackgroundResource(R.drawable.product_item_background_unified)

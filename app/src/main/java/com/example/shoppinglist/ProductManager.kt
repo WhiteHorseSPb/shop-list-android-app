@@ -39,8 +39,8 @@ class ProductManager {
             
             product.needsToBuy = needsToBuy
             
-            // Звездочку снимаем только если товар был в "Срочно" и его выключают из покупки
-            if (currentGroup == ProductGroup.URGENT_TO_BUY && !needsToBuy) {
+            // Звездочку снимаем если товар был срочным и его выключают из покупки
+            if (product.isUrgent && !needsToBuy) {
                 product.isUrgent = false
             }
             
