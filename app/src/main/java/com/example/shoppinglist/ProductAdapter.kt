@@ -127,11 +127,25 @@ class ProductAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ProductDiffCall
             switchBuy.visibility = View.VISIBLE
             switchBuy.isChecked = needsToBuy
             
-            // Единое отображение для всех групп (кроме "Срочно")
+            // Разное отображение для разных групп
             urgentStar.visibility = View.VISIBLE
-            urgentStar.alpha = if (isUrgent) 1.0f else 0.4f
-            urgentStar.setImageResource(if (isUrgent) android.R.drawable.btn_star_big_on else android.R.drawable.btn_star_big_off)
-            urgentStar.setColorFilter(itemView.context.getColor(R.color.urgent_color))
+            when (productGroup) {
+                ProductGroup.URGENT_TO_BUY -> {
+                    urgentStar.alpha = 1.0f
+                    urgentStar.setImageResource(android.R.drawable.btn_star_big_on)
+                    urgentStar.setColorFilter(itemView.context.getColor(R.color.urgent_color))
+                }
+                ProductGroup.TO_BUY -> {
+                    urgentStar.alpha = 0.4f
+                    urgentStar.setImageResource(android.R.drawable.btn_star_big_off)
+                    urgentStar.setColorFilter(itemView.context.getColor(R.color.urgent_color))
+                }
+                ProductGroup.OTHER -> {
+                    urgentStar.alpha = 0.3f  // Бледная звездочка для "Остальное"
+                    urgentStar.setImageResource(android.R.drawable.btn_star_big_off)
+                    urgentStar.setColorFilter(itemView.context.getColor(R.color.text_secondary))  // Серый цвет
+                }
+            }
             
             // Разный фон для разных групп
             if (isUrgent) {
@@ -171,6 +185,13 @@ class ProductAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ProductDiffCall
             switchBuy.thumbTintList = thumbColor
             switchBuy.trackTintList = trackColor
             
+            // Отладочное логирование
+            android.util.Log.d("VISUAL_DEBUG", "=== UPDATE VISUAL ELEMENTS ===")
+            android.util.Log.d("VISUAL_DEBUG", "Product: ${product.name}")
+            android.util.Log.d("VISUAL_DEBUG", "isUrgent: $isUrgent, needsToBuy: $needsToBuy")
+            android.util.Log.d("VISUAL_DEBUG", "Group: $productGroup")
+            android.util.Log.d("VISUAL_DEBUG", "Background: ${if (isUrgent) "pink" else if (productGroup == ProductGroup.OTHER) "white" else "gradient"}")
+            
             // Принудительная инвалидация для MIUI - усиленная версия
             itemView.post {
                 // Полная перерисовка для MIUI
@@ -185,6 +206,7 @@ class ProductAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ProductDiffCall
                 
                 // Принудительное обновление через короткую задержку
                 itemView.postDelayed({
+                    android.util.Log.d("VISUAL_DEBUG", "=== DELAYED UPDATE ===")
                     itemView.invalidate()
                     urgentStar.invalidate()
                     switchBuy.invalidate()
