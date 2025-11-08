@@ -127,26 +127,19 @@ class ProductAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ProductDiffCall
             switchBuy.visibility = View.VISIBLE
             switchBuy.isChecked = needsToBuy
             
-            // Особое отображение для группы "Остальное"
-            if (productGroup == ProductGroup.OTHER) {
-                // Для группы "Остальное": бледная звездочка + белый фон
-                urgentStar.visibility = View.VISIBLE
-                urgentStar.alpha = 0.3f  // Очень бледная звездочка
-                urgentStar.setImageResource(android.R.drawable.btn_star_big_off)
-                urgentStar.setColorFilter(itemView.context.getColor(R.color.text_secondary))
-                
-                // Белый фон для группы "Остальное"
-                itemView.setBackgroundColor(itemView.context.getColor(R.color.white))
+            // Единое отображение для всех групп (кроме "Срочно")
+            urgentStar.visibility = View.VISIBLE
+            urgentStar.alpha = if (isUrgent) 1.0f else 0.4f
+            urgentStar.setImageResource(if (isUrgent) android.R.drawable.btn_star_big_on else android.R.drawable.btn_star_big_off)
+            urgentStar.setColorFilter(itemView.context.getColor(R.color.urgent_color))
+            
+            // Единый фон для всех групп, кроме "Срочно"
+            if (isUrgent) {
+                // Розовый фон для срочных товаров
+                itemView.setBackgroundResource(R.color.urgent_background)
             } else {
-                // Стандартное отображение для других групп
-                urgentStar.visibility = View.VISIBLE
-                urgentStar.alpha = if (isUrgent) 1.0f else 0.4f
-                urgentStar.setImageResource(if (isUrgent) android.R.drawable.btn_star_big_on else android.R.drawable.btn_star_big_off)
-                urgentStar.setColorFilter(itemView.context.getColor(R.color.urgent_color))
-                
-                // Стандартный фон для других групп
-                val backgroundRes = if (isUrgent) R.color.urgent_background else R.drawable.product_item_background
-                itemView.setBackgroundResource(backgroundRes)
+                // Единый стиль для "Важно" и "Остальное" (без тени)
+                itemView.setBackgroundResource(R.drawable.product_item_background_unified)
             }
             
             // Принудительно обновляем цвета переключателя

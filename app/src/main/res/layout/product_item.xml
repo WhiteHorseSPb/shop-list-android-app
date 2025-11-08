@@ -5,8 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
-    android:background="@drawable/product_item_background"
-    android:elevation="6dp">
+    android:background="@drawable/product_item_background_unified">
 
     <ImageView
         android:id="@+id/urgentStar"
