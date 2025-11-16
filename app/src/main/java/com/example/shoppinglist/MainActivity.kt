@@ -163,7 +163,12 @@ class MainActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
             
-            val newProduct = Product(productName.capitalizeWords(), isUrgent = checkBoxUrgent.isChecked)
+            val isUrgent = checkBoxUrgent.isChecked
+            val newProduct = Product(
+                productName.capitalizeWords(),
+                needsToBuy = isUrgent,  // Срочные товары всегда нужно купить
+                isUrgent = isUrgent
+            )
             if (productManager.addProduct(newProduct)) {
                 updateListAndSave()
                 dialog.dismiss()
