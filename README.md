@@ -82,7 +82,9 @@ app/src/main/res/
 ## Требования
 - **Android Studio** Narwhal 4 или новее
 - **Android SDK** API level 24+ (Android 7.0)
-- **Java** 11+
+- **Gradle** 8.13+
+- **Android Gradle Plugin** 8.13.0
+- **Java** 21 (JDK из Android Studio)
 - **Min SDK**: API 24
 - **Target SDK**: API 36
 
@@ -142,6 +144,57 @@ app/src/main/res/
 - ✅ **Добавлены правильные импорты R** во все файлы
 - ✅ **Настроена совместимость Java** - использован JBR из Android Studio
 - ✅ **Восстановлена структура проекта** для корректной работы в Android Studio
+
+## 🛠️ Исправленные проблемы сборки (2025-11-05)
+- ✅ **Проблема "No connection to gradle server"** - полностью решена
+- ✅ **Обновлен Gradle** с версии 8.5 до 8.13 для совместимости с Android Gradle Plugin 8.13.0
+- ✅ **Настроена совместимость с Java 21** через JDK из Android Studio
+- ✅ **Очищены кэши Gradle и Android Studio** для корректной работы
+
+## 🛠️ Troubleshooting
+
+### Проблема: "No connection to gradle server"
+**Ошибка:** `No connection to gradle server. Try restarting the server.`
+
+**Причина:** Несовместимость версий Gradle и Android Gradle Plugin
+
+**Решение:** Обновить Gradle до требуемой версии
+
+**Шаги решения:**
+1. **Обновите `gradle-wrapper.properties`:**
+   ```properties
+   distributionUrl=https\://services.gradle.org/distributions/gradle-8.13-bin.zip
+   ```
+
+2. **Очистите кэш Android Studio:**
+   - `File → Invalidate Caches...`
+   - Выбрать `Invalidate and Restart`
+   - Поставить галочку `Clear file system cache and Local History`
+
+3. **Перезапустите Android Studio** и дождитесь синхронизации Gradle
+
+### Проблема: "Minimum supported Gradle version is X. Current version is Y"
+**Ошибка:** `Minimum supported Gradle version is 8.13. Current version is 8.5`
+
+**Причина:** Android Gradle Plugin требует более новую версию Gradle
+
+**Решение:** Обновить Gradle до указанной версии
+
+**Команды для очистки:**
+```cmd
+# Остановить Gradle daemon
+cd android_studio_project
+.\gradlew.bat --stop
+
+# Очистить кэш
+rmdir /s /q "C:\Users\admin\.gradle\caches"
+```
+
+### Текущие требования к окружению
+- **Gradle:** 8.13+
+- **Android Gradle Plugin:** 8.13.0
+- **Java:** 21 (JDK из Android Studio: `C:\Program Files\Android\Android Studio\jbr`)
+- **Android Studio:** Narwhal 4+
 
 ## 🎯 ИСПРАВЛЕННЫЕ ПРОБЛЕМЫ ФУНКЦИОНАЛА (2025-11-04)
 - ✅ **Проблема с отсутствием звездочек** в группах "Важно" и "Остальное" - ИСПРАВЛЕНО
