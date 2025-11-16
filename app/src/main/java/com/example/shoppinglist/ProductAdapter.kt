@@ -127,26 +127,40 @@ class ProductAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ProductDiffCall
             switchBuy.visibility = View.VISIBLE
             switchBuy.isChecked = needsToBuy
             
-            // Особое отображение для группы "Остальное"
-            if (productGroup == ProductGroup.OTHER) {
-                // Для группы "Остальное": бледная звездочка + белый фон
-                urgentStar.visibility = View.VISIBLE
-                urgentStar.alpha = 0.3f  // Очень бледная звездочка
-                urgentStar.setImageResource(android.R.drawable.btn_star_big_off)
-                urgentStar.setColorFilter(itemView.context.getColor(R.color.text_secondary))
-                
-                // Белый фон для группы "Остальное"
-                itemView.setBackgroundColor(itemView.context.getColor(R.color.white))
-            } else {
-                // Стандартное отображение для других групп
-                urgentStar.visibility = View.VISIBLE
-                urgentStar.alpha = if (isUrgent) 1.0f else 0.4f
-                urgentStar.setImageResource(if (isUrgent) android.R.drawable.btn_star_big_on else android.R.drawable.btn_star_big_off)
-                urgentStar.setColorFilter(itemView.context.getColor(R.color.urgent_color))
-                
-                // Стандартный фон для других групп
-                val backgroundRes = if (isUrgent) R.color.urgent_background else R.drawable.product_item_background
-                itemView.setBackgroundResource(backgroundRes)
+            // Разное отображение для разных групп
+            urgentStar.visibility = View.VISIBLE
+            when (productGroup) {
+                ProductGroup.URGENT_TO_BUY -> {
+                    urgentStar.alpha = 1.0f
+                    urgentStar.setImageResource(android.R.drawable.btn_star_big_on)
+                    urgentStar.setColorFilter(itemView.context.getColor(R.color.urgent_color))
+                }
+                ProductGroup.TO_BUY -> {
+                    urgentStar.alpha = 0.4f
+                    urgentStar.setImageResource(android.R.drawable.btn_star_big_off)
+                    urgentStar.setColorFilter(itemView.context.getColor(R.color.urgent_color))
+                }
+                ProductGroup.OTHER -> {
+                    urgentStar.alpha = 0.3f  // Бледная звездочка для "Остальное"
+                    urgentStar.setImageResource(android.R.drawable.btn_star_big_off)
+                    urgentStar.setColorFilter(itemView.context.getColor(R.color.text_secondary))  // Серый цвет
+                }
+            }
+            
+            // Разный фон для разных групп - используем группировку, а не только флаг isUrgent
+            when (productGroup) {
+                ProductGroup.URGENT_TO_BUY -> {
+                    // Розовый фон для срочных товаров со скругленными углами
+                    itemView.setBackgroundResource(R.drawable.urgent_background_rounded)
+                }
+                ProductGroup.TO_BUY -> {
+                    // Градиентный фон для "Важно"
+                    itemView.setBackgroundResource(R.drawable.product_item_background_unified)
+                }
+                ProductGroup.OTHER -> {
+                    // Белый фон для "Остальное"
+                    itemView.setBackgroundResource(R.drawable.product_item_background_white)
+                }
             }
             
             // Принудительно обновляем цвета переключателя
@@ -165,6 +179,32 @@ class ProductAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ProductDiffCall
             switchBuy.thumbTintList = thumbColor
             switchBuy.trackTintList = trackColor
             
+            // Отладочное логирование
+            android.util.Log.d("VISUAL_DEBUG", "=== UPDATE VISUAL ELEMENTS ===")
+            android.util.Log.d("VISUAL_DEBUG", "Product: ${product.name}")
+            android.util.Log.d("VISUAL_DEBUG", "isUrgent: $isUrgent, needsToBuy: $needsToBuy")
+            android.util.Log.d("VISUAL_DEBUG", "Group: $productGroup")
+            android.util.Log.d("VISUAL_DEBUG", "Background: ${when (productGroup) {
+                ProductGroup.URGENT_TO_BUY -> "pink"
+                ProductGroup.TO_BUY -> "gradient"
+                ProductGroup.OTHER -> "white"
+            }}")
+            
+            // Дополнительная проверка применения фона
+            itemView.post {
+                val currentBackground = when (productGroup) {
+                    ProductGroup.URGENT_TO_BUY -> "pink"
+                    ProductGroup.TO_BUY -> "gradient"
+                    ProductGroup.OTHER -> "white"
+                }
+                android.util.Log.d("VISUAL_DEBUG", "Expected background: $currentBackground")
+                android.util.Log.d("VISUAL_DEBUG", "Actual background resource: ${when (productGroup) {
+                    ProductGroup.URGENT_TO_BUY -> R.drawable.urgent_background_rounded
+                    ProductGroup.TO_BUY -> R.drawable.product_item_background_unified
+                    ProductGroup.OTHER -> R.drawable.product_item_background_white
+                }}")
+            }
+            
             // Принудительная инвалидация для MIUI - усиленная версия
             itemView.post {
                 // Полная перерисовка для MIUI
@@ -179,6 +219,7 @@ class ProductAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ProductDiffCall
                 
                 // Принудительное обновление через короткую задержку
                 itemView.postDelayed({
+                    android.util.Log.d("VISUAL_DEBUG", "=== DELAYED UPDATE ===")
                     itemView.invalidate()
                     urgentStar.invalidate()
                     switchBuy.invalidate()
