@@ -1,0 +1,60 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <!-- Фон иконки -->
+    <path
+        android:fillColor="#FF6B35"
+        android:pathData="M0,0h108v108h-108z"/>
+    
+    <!-- Список (три линии) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:pathData="M20,35 L60,35"/>
+    
+    <path
+        android:fillColor="#FFFFFF"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:pathData="M20,54 L60,54"/>
+    
+    <path
+        android:fillColor="#FFFFFF"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:pathData="M20,73 L60,73"/>
+    
+    <!-- Звездочка (срочность) -->
+    <path
+        android:fillColor="#FFD700"
+        android:pathData="M75,40 L78,49 L88,49 L80,55 L83,64 L75,58 L67,64 L70,55 L62,49 L72,49 Z"/>
+    
+    <!-- Галочки (выполненные задачи) -->
+    <path
+        android:fillColor="#4CAF50"
+        android:strokeColor="#4CAF50"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:pathData="M65,35 L68,38 L73,33"/>
+    
+    <path
+        android:fillColor="#4CAF50"
+        android:strokeColor="#4CAF50"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:pathData="M65,54 L68,57 L73,52"/>
+    
+    <path
+        android:fillColor="#4CAF50"
+        android:strokeColor="#4CAF50"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:pathData="M65,73 L68,76 L73,71"/>
+</vector>
